@@ -1,6 +1,7 @@
 const path = require("path");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const fs = require('fs')
 
@@ -16,23 +17,43 @@ if (mode = isProd) {
 }
 console.log(mode + " mode")
 
+let entryName = {};
+
+function entryPoints(page) {
+  entryName[page] = `./pages/${page}`;
+}
+
 const PATHS = {
   src: path.join(__dirname, "./src"),
   dist: path.join(__dirname, "./dist"),
 }
 
-const PAGES_DIR = `${PATHS.src}/ui-kit/pages/`
-const PAGES = fs.readdirSync(PAGES_DIR).filter(fileName => fileName.endsWith('.pug'))
+const PAGES_DIR = `${PATHS.src}/ui-kit/`
+const PAGES = fs
+  .readdirSync(PAGES_DIR);
 
 const plugins = () => {
   const base = [
+    new CleanWebpackPlugin(),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: `${PATHS.src}/assets/img`,
+          to: `${PATHS.dist}/img`,
+        },
+      ],
+    }),
     new MiniCssExtractPlugin({
       filename: filename("css"),
     }),
-    ...PAGES.map(page => new HTMLWebpackPlugin({
-      template: `${PAGES_DIR}/${page}`,
-      filename: `./${page.replace(/\.pug/,'.html')}`
-    }))
+    ...PAGES.map((page) => {
+      entryPoints(page);
+      return new HTMLWebpackPlugin({
+        template: `./ui-kit/${page}/${page}.pug`,
+        filename: `./${page}.html`,
+        chunks: [`${page}`],
+      });
+    }),
   ]
 
   return base;
@@ -48,7 +69,6 @@ module.exports = {
     filename: filename("js"),
     path: PATHS.dist,
     assetModuleFilename: "assets/[hash][ext][query]",
-    clean: true,
   },
   devServer: {
     port: 8050,

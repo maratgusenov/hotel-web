@@ -1,1 +1,1 @@
-import './ui-kit/pages/index/index.scss'
+import './ui-kit/index/index.scss'
