@@ -1,0 +1,31 @@
+
+@mixin text($size) {
+  font-size: $size;
+}
+
+.type {
+  display: flex;
+  flex-direction: column;
+  &__text {
+    display: flex;
+    display: row;
+    &_size_h1 {
+      @include text(24px)
+    }
+    &_size_h2 {
+      @include text(19px)
+    }
+    &_size_h3 {
+      @include text(12px)
+    }
+    &_size_body {
+      @include text(14px)
+    }
+  }
+  &__tag {
+    color: black
+  }
+  &__task {
+    color: red
+  }
+}
